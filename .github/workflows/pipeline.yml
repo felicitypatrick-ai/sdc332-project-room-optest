@@ -1,0 +1,55 @@
+name: pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Run tests
+        shell: bash
+        run: |
+          set -o pipefail
+          python -m unittest discover -s tests -v 2>&1 | tee test-results.txt
+
+      - name: Write test results to run summary
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: |
+          {
+            echo "## Test results"
+            echo
+            if [ -f test-results.txt ]; then
+              echo '```text'
+              cat test-results.txt
+              echo '```'
+            else
+              echo "No test results were produced."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Build release package
+        run: python scripts/package.py
+
+      - name: Upload dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: room-build-card4321
+          path: dist
+          retention-days: 5
+          if-no-files-found: error
