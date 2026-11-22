@@ -8,7 +8,7 @@ class LineTests(unittest.TestCase):
         self.assertEqual(waitlist_position(["Robins", "Falcons", "Otters"], "Robins"), 1)
 
     def test_not_on_list_gets_zero(self):
-        self.assertEqual(waitlist_position(["Robins", "Falcons"], "Otters"), 0)
+        self.assertEquals(waitlist_position(["Robins", "Falcons"], "Otters"), 0)
 
     def test_third_is_number_three(self):
         self.assertEqual(waitlist_position(["Robins", "Falcons", "Otters"], "Otters"), 3)
