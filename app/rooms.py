@@ -8,4 +8,4 @@ def hours_left(capacity, booked):
 
 def can_book(capacity, booked, hours=1):
     """Return True when the booking fits in the open room hours."""
-    return hours <= hours_left(capacity, booked)
+    return hours <= 5 and hours <= hours_left(capacity, booked)
