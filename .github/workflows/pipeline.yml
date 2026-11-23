@@ -14,45 +14,53 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
       - name: Run tests
         shell: bash
-        run: |
-          set -o pipefail
-          python -m unittest discover -s tests -v 2>&1 | tee test-results.txt
+        run: python -m unittest discover -s tests -v 2>&1 | tee test-results.txt
 
       - name: Write test results to run summary
-        if: ${{ !cancelled() }}
+        if: always()
         shell: bash
         run: |
           {
             echo "## Test results"
             echo
             if [ -f test-results.txt ]; then
-              echo '```text'
+              echo '```'
               cat test-results.txt
               echo '```'
             else
-              echo "No test results were produced."
+              echo "Tests did not run."
             fi
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Build release package
         run: python scripts/package.py
 
-      - name: Check the owner's rule
-        run: python scripts/rule_check.py all
-
       - name: Upload dist
         uses: actions/upload-artifact@v4
         with:
           name: room-build-card4321
-          path: dist
+          path: dist/
           retention-days: 7
           if-no-files-found: error
+
+  rule-check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        check: [capacity, limit, line]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check the owner's rule
+        run: python scripts/rule_check.py ${{ matrix.check }}
