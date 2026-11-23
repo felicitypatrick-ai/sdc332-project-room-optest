@@ -62,5 +62,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Build release package
+        run: python scripts/package.py
       - name: Check the owner's rule
         run: python scripts/rule_check.py ${{ matrix.check }}
